@@ -466,6 +466,20 @@ func (h *hyper) stopPod(pod Pod) error {
 	return nil
 }
 
+// deletePod is the agent Pod destruction implementation for hyperstart.
+func (h *hyper) deletePod(pod Pod) error {
+        proxyCmd := hyperstartProxyCmd{
+                cmd:     hyperstart.DestroyPod,
+                message: nil,
+        }
+
+        if _, err := h.proxy.sendCmd(proxyCmd); err != nil {
+                return err
+        }
+
+        return nil
+}
+
 // startPauseContainer starts a specific container running the pause binary provided.
 func (h *hyper) startPauseContainer(podID string) error {
 	cmd := Cmd{

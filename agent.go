@@ -133,6 +133,9 @@ type agent interface {
 	// stopPod will tell the agent to stop all containers related to the Pod.
 	stopPod(pod Pod) error
 
+	// deletePod will tell the agent to terminate. This will end up the VM.
+	deletePod(pod Pod) error
+
 	// createContainer will tell the agent to create a container related to a Pod.
 	createContainer(pod *Pod, c *Container) error
 

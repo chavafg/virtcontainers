@@ -681,40 +681,6 @@ func (q *qemu) startPod(startCh, stopCh chan struct{}) error {
 	return nil
 }
 
-// stopPod will stop the Pod's VM.
-func (q *qemu) stopPod() error {
-	cfg := ciaoQemu.QMPConfig{Logger: qmpLogger{}}
-	q.qmpControlCh.disconnectCh = make(chan struct{})
-	const timeout = time.Duration(10) * time.Second
-
-	virtLog.Info("Stopping Pod")
-	qmp, _, err := ciaoQemu.QMPStart(q.qmpControlCh.ctx, q.qmpControlCh.path, cfg, q.qmpControlCh.disconnectCh)
-	if err != nil {
-		virtLog.Errorf("Failed to connect to QEMU instance %v", err)
-		return err
-	}
-
-	err = qmp.ExecuteQMPCapabilities(q.qmpMonitorCh.ctx)
-	if err != nil {
-		virtLog.Errorf("Failed to negotiate capabilities with QEMU %v", err)
-		return err
-	}
-
-	if err := qmp.ExecuteQuit(q.qmpMonitorCh.ctx); err != nil {
-		return err
-	}
-
-	// Wait for the VM disconnection notification
-	select {
-	case <-q.qmpControlCh.disconnectCh:
-		break
-	case <-time.After(timeout):
-		return fmt.Errorf("Did not receive the VM disconnection notification (timeout %ds)", timeout)
-	}
-
-	return nil
-}
-
 func (q *qemu) togglePausePod(pause bool) error {
 	defer func(qemu *qemu) {
 		if q.qmpMonitorCh.qmp != nil {

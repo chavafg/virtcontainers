@@ -184,6 +184,11 @@ func (s *sshd) stopPod(pod Pod) error {
 	return nil
 }
 
+// deletePod is the agent Pod destruction implementation for sshd.
+func (s *sshd) deletePod(pod Pod) error {
+        return nil
+}
+
 // createContainer is the agent Container creation implementation for sshd.
 func (s *sshd) createContainer(pod *Pod, c *Container) error {
 	return nil

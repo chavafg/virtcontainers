@@ -898,16 +898,13 @@ func (p *Pod) stopVM() error {
 	if _, _, err := p.proxy.connect(*p, false); err != nil {
 		return err
 	}
+	defer p.proxy.disconnect()
+
+	if err := p.agent.deletePod(*p); err != nil {
+                return err
+        }
 
 	if err := p.proxy.unregister(*p); err != nil {
-		return err
-	}
-
-	if err := p.proxy.disconnect(); err != nil {
-		return err
-	}
-
-	if err := p.hypervisor.stopPod(); err != nil {
 		return err
 	}
 

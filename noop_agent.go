@@ -55,6 +55,11 @@ func (n *noopAgent) stopPod(pod Pod) error {
 	return nil
 }
 
+// deletePod is the Noop agent Pod destruction implementation. It does nothing.
+func (n *noopAgent) deletePod(pod Pod) error {
+	return nil
+}
+
 // createContainer is the Noop agent Container creation implementation. It does nothing.
 func (n *noopAgent) createContainer(pod *Pod, c *Container) error {
 	return nil
