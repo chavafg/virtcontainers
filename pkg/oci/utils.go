@@ -193,49 +193,6 @@ func containerMounts(spec CompatOCISpec) []vc.Mount {
 	return mnts
 }
 
-func contains(s []string, e string) bool {
-	for _, a := range s {
-		if a == e {
-			return true
-		}
-	}
-	return false
-}
-
-func newLinuxDevice(d spec.LinuxDevice) (vc.Device, error) {
-	allowedDeviceTypes := []string{"c", "b", "u", "p"}
-
-	if !contains(allowedDeviceTypes, d.Type) {
-		return nil, fmt.Errorf("Unexpected Device Type %s for device %s", d.Type, d.Path)
-	}
-
-	if d.Path == "" {
-		return nil, fmt.Errorf("Path cannot be empty for device")
-	}
-
-	return vc.NewDevice(d.Path, d.Type, d.Major, d.Minor, d.FileMode, *d.UID, *d.GID)
-}
-
-func containerDevices(spec CompatOCISpec) ([]vc.Device, error) {
-	ociLinuxDevices := spec.Spec.Linux.Devices
-
-	if ociLinuxDevices == nil {
-		return []vc.Device{}, nil
-	}
-
-	var devices []vc.Device
-	for _, d := range ociLinuxDevices {
-		linuxDevice, err := newLinuxDevice(d)
-		if err != nil {
-			return []vc.Device{}, err
-		}
-
-		devices = append(devices, linuxDevice)
-	}
-
-	return devices, nil
-}
-
 func networkConfig(ocispec CompatOCISpec) (vc.NetworkConfig, error) {
 	linux := ocispec.Linux
 	if linux == nil {
@@ -460,11 +417,6 @@ func ContainerConfig(ocispec CompatOCISpec, bundlePath, cid, console string, det
 		cmd.SupplementaryGroups = append(cmd.SupplementaryGroups, strconv.FormatUint(uint64(gid), 10))
 	}
 
-	devices, err := containerDevices(ocispec)
-	if err != nil {
-		return vc.ContainerConfig{}, err
-	}
-
 	containerConfig := vc.ContainerConfig{
 		ID:             cid,
 		RootFs:         rootfs,
@@ -474,8 +426,7 @@ func ContainerConfig(ocispec CompatOCISpec, bundlePath, cid, console string, det
 			ConfigJSONKey: string(ociSpecJSON),
 			BundlePathKey: bundlePath,
 		},
-		Mounts:  containerMounts(ocispec),
-		Devices: devices,
+		Mounts: containerMounts(ocispec),
 	}
 
 	cType, err := ocispec.ContainerType()

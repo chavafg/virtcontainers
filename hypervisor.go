@@ -70,9 +70,6 @@ const (
 
 	// SerialPortDev is the serial port device type.
 	serialPortDev
-
-	// VFIODevice is VFIO device type
-	vfioDev
 )
 
 // Set sets an hypervisor type based on the input string.
