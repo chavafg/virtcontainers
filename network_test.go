@@ -307,7 +307,25 @@ func TestGetIfacesFromNetNsSuccessfulBridge(t *testing.T) {
 		},
 	}
 
-	expected := []netIfaceAddrs(nil)
+	expected := []netIfaceAddrs{
+		{
+			iface: net.Interface{
+				Index: 1,
+				MTU:   65536,
+				Name:  "lo",
+				Flags: net.FlagLoopback,
+			},
+		},
+		{
+			iface: net.Interface{
+				Index:        2,
+				MTU:          testMTU,
+				Name:         testNetIface,
+				HardwareAddr: hwAddr,
+				Flags:        net.FlagBroadcast | net.FlagMulticast,
+			},
+		},
+	}
 
 	testGetIfacesFromNetNsSuccessful(t, link, expected)
 }
